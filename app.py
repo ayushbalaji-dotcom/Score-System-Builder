@@ -255,6 +255,12 @@ def normalize_options(options_csv):
     return [o.strip() for o in str(options_csv).split(",") if o.strip()]
 
 
+def safe_str(value):
+    if value is None:
+        return ""
+    return str(value).strip()
+
+
 def tool_to_input_rows(tool):
     rows = []
     for item in tool.get("inputs", []):
@@ -276,8 +282,8 @@ def input_rows_to_tool(rows):
             continue
         inputs.append(
             {
-                "id": row.get("id").strip(),
-                "label": row.get("label", "").strip(),
+                "id": safe_str(row.get("id")),
+                "label": safe_str(row.get("label", "")),
                 "type": row.get("type", "select"),
                 "options": normalize_options(row.get("options_csv", "")),
             }
@@ -314,7 +320,7 @@ def scoring_rows_to_tool(rows):
             weight_value = 1
         rules.append(
             {
-                "input_id": row.get("input_id").strip(),
+                "input_id": safe_str(row.get("input_id")),
                 "favor_values": normalize_options(row.get("favor_values_csv", "")),
                 "against_values": normalize_options(row.get("against_values_csv", "")),
                 "invert_favor": bool(row.get("invert_favor", False)),
@@ -353,7 +359,7 @@ def rule_rows_to_tool(rows):
             continue
         conditions = []
         for idx in range(3):
-            input_id = row.get(f"input_id_{idx + 1}", "").strip()
+            input_id = safe_str(row.get(f"input_id_{idx + 1}", ""))
             value = row.get(f"value_{idx + 1}", "")
             if input_id and value != "":
                 conditions.append({"input_id": input_id, "op": "equals", "value": value})
@@ -558,7 +564,7 @@ def main():
         st.download_button(
             "Download Tool JSON",
             data=json.dumps(tool, indent=2),
-            file_name=f"{tool.get('name','tool').strip().replace(' ', '_').lower()}.json",
+            file_name=f"{safe_str(tool.get('name','tool')).replace(' ', '_').lower() or 'tool'}.json",
             mime="application/json",
         )
 
