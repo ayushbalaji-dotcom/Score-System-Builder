@@ -348,6 +348,12 @@ def main():
             st.session_state.tools_data["tools"][st.session_state.selected_tool_id] = deepcopy(tool)
             save_tools(st.session_state.tools_data)
             st.success("Tool saved.")
+        st.download_button(
+            "Download Tool JSON",
+            data=json.dumps(tool, indent=2),
+            file_name=f"{tool.get('name','tool').strip().replace(' ', '_').lower()}.json",
+            mime="application/json",
+        )
 
     with tabs[1]:
         st.subheader(tool.get("name", "Tool Preview"))
