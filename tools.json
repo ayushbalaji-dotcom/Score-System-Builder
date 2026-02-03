@@ -134,7 +134,8 @@
           "against_values": [
             "Mild"
           ],
-          "invert_favor": false
+          "invert_favor": false,
+          "weight": 1
         },
         {
           "input_id": "annulus_dilated",
@@ -144,7 +145,8 @@
           "against_values": [
             "No"
           ],
-          "invert_favor": false
+          "invert_favor": false,
+          "weight": 1
         },
         {
           "input_id": "atrial_fib",
@@ -154,7 +156,8 @@
           "against_values": [
             "No"
           ],
-          "invert_favor": false
+          "invert_favor": false,
+          "weight": 1
         },
         {
           "input_id": "ra_dilatation",
@@ -164,7 +167,8 @@
           "against_values": [
             "No"
           ],
-          "invert_favor": false
+          "invert_favor": false,
+          "weight": 1
         },
         {
           "input_id": "rv_dysfunction",
@@ -174,7 +178,8 @@
           "against_values": [
             "No"
           ],
-          "invert_favor": false
+          "invert_favor": false,
+          "weight": 1
         },
         {
           "input_id": "tethering",
@@ -184,7 +189,8 @@
           "against_values": [
             "No"
           ],
-          "invert_favor": false
+          "invert_favor": false,
+          "weight": 1
         },
         {
           "input_id": "phtn",
@@ -194,7 +200,8 @@
           "against_values": [
             "No"
           ],
-          "invert_favor": false
+          "invert_favor": false,
+          "weight": 1
         },
         {
           "input_id": "organ_dysfunction",
@@ -204,7 +211,8 @@
           "against_values": [
             "No"
           ],
-          "invert_favor": false
+          "invert_favor": false,
+          "weight": 1
         },
         {
           "input_id": "conduction_disease",
@@ -214,7 +222,8 @@
           "against_values": [
             "No"
           ],
-          "invert_favor": true
+          "invert_favor": true,
+          "weight": 1
         },
         {
           "input_id": "no_comorbidities",
@@ -224,7 +233,8 @@
           "against_values": [
             "No"
           ],
-          "invert_favor": true
+          "invert_favor": true,
+          "weight": 1
         }
       ],
       "rules": [
@@ -276,7 +286,7 @@
         }
       ],
       "fallback": {
-        "level": "error",
+        "level": "warning",
         "message": "Class 1c: Careful Evaluation / MDT Recommended prior to consideration of intervention"
       }
     },
@@ -304,7 +314,8 @@
           "against_values": [
             "No"
           ],
-          "invert_favor": false
+          "invert_favor": false,
+          "weight": 1
         }
       ],
       "rules": [
