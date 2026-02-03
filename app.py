@@ -14,7 +14,13 @@ DEFAULT_TOOL = {
         {"id": "example_yes_no", "label": "Example Yes/No?", "type": "select", "options": ["Yes", "No", "Unknown"]}
     ],
     "scoring_rules": [
-        {"input_id": "example_yes_no", "favor_values": ["Yes"], "against_values": ["No"], "invert_favor": False}
+        {
+            "input_id": "example_yes_no",
+            "favor_values": ["Yes"],
+            "against_values": ["No"],
+            "invert_favor": False,
+            "weight": 1,
+        }
     ],
     "rules": [
         {
@@ -105,6 +111,7 @@ def tool_to_scoring_rows(tool):
                 "favor_values_csv": ", ".join(item.get("favor_values", [])),
                 "against_values_csv": ", ".join(item.get("against_values", [])),
                 "invert_favor": bool(item.get("invert_favor", False)),
+                "weight": int(item.get("weight", 1)),
             }
         )
     return rows
@@ -115,12 +122,20 @@ def scoring_rows_to_tool(rows):
     for row in rows:
         if not row.get("input_id"):
             continue
+        weight_value = row.get("weight", 1)
+        try:
+            weight_value = int(weight_value)
+        except (TypeError, ValueError):
+            weight_value = 1
+        if weight_value < 1:
+            weight_value = 1
         rules.append(
             {
                 "input_id": row.get("input_id").strip(),
                 "favor_values": normalize_options(row.get("favor_values_csv", "")),
                 "against_values": normalize_options(row.get("against_values_csv", "")),
                 "invert_favor": bool(row.get("invert_favor", False)),
+                "weight": weight_value,
             }
         )
     return rules
@@ -220,15 +235,16 @@ def compute_scores(tool, values):
         favor_values = rule.get("favor_values", [])
         against_values = rule.get("against_values", [])
         invert = rule.get("invert_favor", False)
+        weight = rule.get("weight", 1) or 1
         score = 0
         if value in favor_values:
             score = -1 if invert else 1
         elif value in against_values:
             score = 1 if invert else -1
         if score == 1:
-            plus += 1
+            plus += weight
         elif score == -1:
-            minus += 1
+            minus += weight
     return plus, minus
 
 
@@ -312,6 +328,7 @@ def main():
                 "favor_values_csv": st.column_config.TextColumn("Favor values"),
                 "against_values_csv": st.column_config.TextColumn("Against values"),
                 "invert_favor": st.column_config.CheckboxColumn("Invert (yes counts against)"),
+                "weight": st.column_config.NumberColumn("Weight", min_value=1, step=1),
             },
             key="scoring_editor",
         )
