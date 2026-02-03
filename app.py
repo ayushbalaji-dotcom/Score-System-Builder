@@ -35,6 +35,185 @@ DEFAULT_TOOL = {
     "fallback": {"level": "warning", "message": "No rules matched."},
 }
 
+TRICUSPID_TOOL = {
+    "name": "Concomitant Tricuspid Repair Evaluator",
+    "description": "Fill out the clinical data below to see guideline recommendations.",
+    "inputs": [
+        {
+            "id": "left_sided_valve_surgery",
+            "label": "Has the patient had left-sided valve surgery?",
+            "type": "select",
+            "options": ["Yes", "No", "Unknown"],
+        },
+        {
+            "id": "tr_severity",
+            "label": "What is the TR severity?",
+            "type": "select",
+            "options": ["Mild", "Moderate", "Severe"],
+        },
+        {
+            "id": "tr_mechanism",
+            "label": "What is the TR mechanism?",
+            "type": "select",
+            "options": ["Primary", "Secondary (functional)"],
+        },
+        {
+            "id": "annulus_dilated",
+            "label": "Tricuspid annulus dilated?",
+            "type": "select",
+            "options": ["Yes", "No", "Unknown"],
+        },
+        {
+            "id": "atrial_fib",
+            "label": "Chronic atrial fibrillation?",
+            "type": "select",
+            "options": ["Yes", "No", "Unknown"],
+        },
+        {
+            "id": "ra_dilatation",
+            "label": "Significant right atrial dilatation?",
+            "type": "select",
+            "options": ["Yes", "No", "Unknown"],
+        },
+        {
+            "id": "rv_dysfunction",
+            "label": "RV dilatation or dysfunction?",
+            "type": "select",
+            "options": ["Yes", "No", "Unknown"],
+        },
+        {
+            "id": "tethering",
+            "label": "Non-severe leaflet tethering?",
+            "type": "select",
+            "options": ["Yes", "No", "Unknown"],
+        },
+        {
+            "id": "phtn",
+            "label": "Pulmonary hypertension present?",
+            "type": "select",
+            "options": ["Yes", "No", "Unknown"],
+        },
+        {
+            "id": "organ_dysfunction",
+            "label": "Reversible renal/liver dysfunction?",
+            "type": "select",
+            "options": ["Yes", "No", "Unknown"],
+        },
+        {
+            "id": "conduction_disease",
+            "label": "Is there Conduction disease?",
+            "type": "select",
+            "options": ["Yes", "No", "Unknown"],
+        },
+        {
+            "id": "no_comorbidities",
+            "label": "No other relevant comorbidities?",
+            "type": "select",
+            "options": ["Yes", "No", "Unknown"],
+        },
+    ],
+    "scoring_rules": [
+        {
+            "input_id": "tr_severity",
+            "favor_values": ["Moderate", "Severe"],
+            "against_values": ["Mild"],
+            "invert_favor": False,
+            "weight": 1,
+        },
+        {
+            "input_id": "annulus_dilated",
+            "favor_values": ["Yes"],
+            "against_values": ["No"],
+            "invert_favor": False,
+            "weight": 1,
+        },
+        {
+            "input_id": "atrial_fib",
+            "favor_values": ["Yes"],
+            "against_values": ["No"],
+            "invert_favor": False,
+            "weight": 1,
+        },
+        {
+            "input_id": "ra_dilatation",
+            "favor_values": ["Yes"],
+            "against_values": ["No"],
+            "invert_favor": False,
+            "weight": 1,
+        },
+        {
+            "input_id": "rv_dysfunction",
+            "favor_values": ["Yes"],
+            "against_values": ["No"],
+            "invert_favor": False,
+            "weight": 1,
+        },
+        {
+            "input_id": "tethering",
+            "favor_values": ["Yes"],
+            "against_values": ["No"],
+            "invert_favor": False,
+            "weight": 1,
+        },
+        {
+            "input_id": "phtn",
+            "favor_values": ["Yes"],
+            "against_values": ["No"],
+            "invert_favor": False,
+            "weight": 1,
+        },
+        {
+            "input_id": "organ_dysfunction",
+            "favor_values": ["Yes"],
+            "against_values": ["No"],
+            "invert_favor": False,
+            "weight": 1,
+        },
+        {
+            "input_id": "conduction_disease",
+            "favor_values": ["Yes"],
+            "against_values": ["No"],
+            "invert_favor": True,
+            "weight": 1,
+        },
+        {
+            "input_id": "no_comorbidities",
+            "favor_values": ["Yes"],
+            "against_values": ["No"],
+            "invert_favor": True,
+            "weight": 1,
+        },
+    ],
+    "rules": [
+        {
+            "name": "Class 1",
+            "level": "success",
+            "message": "Class 1: Concomitant TR Repair Recommended",
+            "conditions": [{"input_id": "tr_severity", "op": "equals", "value": "Severe"}],
+        },
+        {
+            "name": "Class 2a",
+            "level": "info",
+            "message": "Class 2a: Concomitant TR Repair should be considered",
+            "conditions": [{"input_id": "tr_severity", "op": "equals", "value": "Moderate"}],
+        },
+        {
+            "name": "Class 2b",
+            "level": "warning",
+            "message": "Class 2b: Concomitant TR Repair may be considered",
+            "conditions": [
+                {"input_id": "tr_severity", "op": "equals", "value": "Mild"},
+                {"input_id": "tr_mechanism", "op": "equals", "value": "Secondary (functional)"},
+                {"input_id": "annulus_dilated", "op": "equals", "value": "Yes"},
+            ],
+        },
+    ],
+    "fallback": {
+        "level": "warning",
+        "message": "Class 1c: Careful Evaluation / MDT Recommended prior to consideration of intervention",
+    },
+}
+
 LEVELS = ["success", "info", "warning", "error"]
 INPUT_TYPES = ["select", "number", "text"]
 
@@ -55,6 +234,10 @@ def save_tools(data):
 def ensure_state():
     if "tools_data" not in st.session_state:
         st.session_state.tools_data = load_tools()
+        tools = st.session_state.tools_data.setdefault("tools", {})
+        if "tricuspid_repair" not in tools:
+            tools["tricuspid_repair"] = deepcopy(TRICUSPID_TOOL)
+            save_tools(st.session_state.tools_data)
     if "selected_tool_id" not in st.session_state:
         tool_ids = list(st.session_state.tools_data.get("tools", {}).keys())
         st.session_state.selected_tool_id = tool_ids[0] if tool_ids else None
@@ -278,6 +461,13 @@ def main():
             st.session_state.tools_data["tools"][new_id] = deepcopy(DEFAULT_TOOL)
             st.session_state.selected_tool_id = new_id
             save_tools(st.session_state.tools_data)
+            st.rerun()
+
+        if st.button("Reset Defaults"):
+            st.session_state.tools_data.setdefault("tools", {})
+            st.session_state.tools_data["tools"]["tricuspid_repair"] = deepcopy(TRICUSPID_TOOL)
+            save_tools(st.session_state.tools_data)
+            st.session_state.selected_tool_id = "tricuspid_repair"
             st.rerun()
 
         if tool_ids:
